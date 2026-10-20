@@ -1,41 +1,129 @@
 <!DOCTYPE html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Мұғалім панелі</title>
 <style>
-body{margin:0;background:#eef2f7;color:#101828;font:15px/1.5 "Trebuchet MS",Verdana,sans-serif}
-main{max-width:1000px;margin:auto;padding:16px}
-input,select,button{font:inherit;padding:8px 10px;border:2px solid #101828;border-radius:8px;background:#fff}
-button{background:#2457ff;color:#fff;cursor:pointer}
-table{width:100%;border-collapse:collapse;background:#fff;border:2px solid #101828}
-th,td{padding:8px;border-bottom:1px solid #d0d5dd;text-align:left;vertical-align:top}th{background:#ffe9a6}
-tr.r{cursor:pointer}tr.r:hover{background:#eef3ff}
-pre{white-space:pre-wrap;background:#f7f8fa;padding:8px;border-radius:6px;margin:4px 0;font:13px Consolas,monospace}
-.s{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.s div{background:#fff;border:2px solid #101828;border-radius:8px;padding:6px 12px}
-.tw{overflow-x:auto}
-</style></head><body><main>
-<h1>👩‍🏫 Мұғалім панелі</h1>
-<div id="login"><input type="password" id="k" placeholder="Құпиясөз"> <button id="go">Кіру</button> <span id="msg"></span></div>
+:root{--bg:#0a0c10;--p:#10141a;--p2:#161b22;--ln:#232a34;--ink:#e6edf3;--mut:#8b949e;--ac:#3ddc97;--bl:#79b8ff;--wn:#f2cc60;--bd:#ff7b72;
+--mono:ui-monospace,"JetBrains Mono","Fira Code",SFMono-Regular,Consolas,Menlo,monospace;
+--sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}html{color-scheme:dark}
+body{margin:0;background:var(--bg) radial-gradient(#171c24 1px,transparent 1px) 0 0/24px 24px;color:var(--ink);font:14.5px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:1100px;margin:auto;padding:18px 16px}
+.br{font:600 15px var(--mono)}.br .lg{color:var(--ac)}.mut{color:var(--mut)}
+main{max-width:1100px;margin:auto;padding:0 16px 80px}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:12px}
+.btn{font:500 13.5px var(--sans);background:var(--p2);color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--mut)}.btn.pri{background:var(--ac);color:#04130c;border-color:var(--ac);font-weight:600}
+.btn.dng{color:var(--bd)}.btn.dng:hover:not(:disabled){border-color:var(--bd);background:#1c1114}
+:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+input,select{font:14px var(--sans);background:#0d1117;color:var(--ink);border:1px solid var(--ln);border-radius:8px;padding:8px 12px}
+.login{max-width:380px;margin:12vh auto;padding:24px}
+.lab{font:12px var(--mono);color:var(--ac);letter-spacing:.04em;margin-bottom:8px}
+.login h1{font:700 22px var(--sans);margin:0 0 14px}.login .row{display:flex;gap:8px}.login input{flex:1;font-family:var(--mono)}
+#msg{display:block;margin-top:10px;color:var(--bd);font:12.5px var(--mono);min-height:18px}
+/* stats */
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:6px 0 18px}
+.st{padding:14px 16px}.st .k{font:12px var(--mono);color:var(--mut)}.st .v{font:700 24px var(--sans);letter-spacing:-.02em;margin:2px 0}.st .s{font-size:12.5px;color:var(--mut)}
+.bar{display:inline-block;width:64px;height:6px;border-radius:4px;background:var(--ln);overflow:hidden;vertical-align:middle}.bar i{display:block;height:100%}
+.st .bar{width:100%;margin-top:8px;display:block}
+.g{color:var(--ac)}.a{color:var(--wn)}.r{color:var(--bd)}i.g{background:var(--ac)}i.a{background:var(--wn)}i.r{background:var(--bd)}
+/* toolbar */
+.tool{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.tool input{flex:1;min-width:180px}.cnt{font:12.5px var(--mono);color:var(--mut);margin-left:auto}
+/* table */
+.tw{overflow-x:auto;border:1px solid var(--ln);border-radius:12px;background:var(--p)}
+table{width:100%;border-collapse:collapse}
+th{font:500 12px var(--mono);color:var(--mut);text-align:left;padding:10px 14px;border-bottom:1px solid var(--ln);background:var(--p2);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--ln);vertical-align:middle}
+tr:last-child>td{border-bottom:0}
+tr.r{cursor:pointer;transition:background .12s}tr.r:hover{background:#141a22}tr.r.open{background:#141a22}
+.tm{font:12.5px var(--mono);color:var(--mut);white-space:nowrap}
+.tag{display:inline-block;font:600 12px var(--mono);color:var(--bl);background:#0f1a2b;border:1px solid #1c2a40;border-radius:6px;padding:2px 8px}
+.who{display:flex;align-items:center;gap:10px;font-weight:500}.av{width:28px;height:28px;border-radius:8px;background:var(--p2);border:1px solid var(--ln);display:grid;place-items:center;font:600 11px var(--mono);color:var(--ac);flex:none}
+.sc{display:flex;align-items:center;gap:10px;font:600 13px var(--mono);white-space:nowrap}
+.ch{width:30px;color:var(--mut);font:16px var(--mono);text-align:center}tr.open .ch{transform:rotate(90deg);color:var(--ac)}
+tr.d>td{padding:0;background:#0c1015}
+.det{padding:18px;display:grid;gap:18px}
+.dh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-weight:600}
+.two{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+h4{font:500 12px var(--mono);color:var(--ac);margin:0 0 10px;letter-spacing:.04em}
+.qa{border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--p)}
+.qa .q{font:12px var(--mono);color:var(--mut);margin-bottom:4px}.qa .an{white-space:pre-wrap;word-break:break-word}
+.chip{display:inline-block;background:#0f1a16;border:1px solid #1d3a2d;color:var(--ac);border-radius:999px;padding:2px 12px}
+.empty{color:var(--mut);font:13px var(--mono)}
+.ed{border:1px solid var(--ln);border-radius:10px;overflow:hidden;background:#0d1117}
+.tabs{display:flex;align-items:center;gap:2px;padding:6px 8px;background:var(--p2);border-bottom:1px solid var(--ln)}
+.tabs button{font:12px var(--mono);background:none;border:0;color:var(--mut);padding:5px 10px;border-radius:6px;cursor:pointer}
+.tabs button.on{background:#0d1117;color:var(--ink)}.tabs .cp{margin-left:auto}.tabs .cp:hover{color:var(--ac)}
+pre.code{margin:0;padding:14px;max-height:380px;overflow:auto;font:13px/1.65 var(--mono);color:#c9d4e0;white-space:pre-wrap;word-break:break-word}
+pre.code .t{color:#7ee787;font-style:normal}pre.code .at{color:#79c0ff;font-style:normal}pre.code .v{color:#f2cc60;font-style:normal}
+iframe{display:block;width:100%;height:300px;border:0;background:#fff}
+</style></head><body>
+<header class="top"><div class="br"><span class="lg">&lt;/&gt;</span> teacher<span class="mut">.panel</span></div><div id="bar" hidden><span id="note" class="mut" style="font:12.5px var(--mono);margin-right:10px"></span><button class="btn" id="rf">↻ Жаңарту</button> <button class="btn dng" id="clr">🗑 Тазалау</button></div></header>
+<main>
+<section id="login" class="card login"><div class="lab">// auth</div><h1>Мұғалім панелі</h1><div class="row"><input type="password" id="k" placeholder="Құпиясөз" autocomplete="off"><button class="btn pri" id="go">Кіру</button></div><span id="msg"></span></section>
 <div id="dash" hidden>
-<div class="s" id="sum"></div>
-<p><select id="fl"><option value="">Барлық сабақ</option></select> <input id="q" placeholder="ФИО бойынша іздеу"> <button id="rf">Жаңарту</button></p>
-<div class="tw"><table><thead><tr><th>Уақыты</th><th>Сабақ</th><th>ФИО</th><th>Балл</th></tr></thead><tbody id="tb"></tbody></table></div>
-<p style="color:#667085">Жолды басыңыз — рефлексия жауаптары мен оқушының коды көрінеді.</p>
+<div class="sum" id="sum"></div>
+<div class="tool"><select id="fl"><option value="">Барлық сабақ</option></select><input id="q" placeholder="ФИО бойынша іздеу"><span class="cnt" id="cnt"></span></div>
+<div class="tw"><table><thead><tr><th>Уақыты</th><th>Сабақ</th><th>Оқушы</th><th>Балл</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+<p class="mut" style="font:12.5px var(--mono)">// жолды басыңыз — рефлексия, код және нәтиже ашылады</p>
 </div>
+</main>
 <script>
-const URL_="https://script.google.com/macros/s/AKfycbwK6LcMVw48qgPYSOtNhKunn0sYSq5d30LEQem4AjiB1kDbM8YUHN1J4zRYKdzWHqDH/exec";
-const $=s=>document.querySelector(s),e=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-let rows=[],key='';
+/* DevTools-ты ашатын пернелер мен тінтуір мәзірін бұғаттау */
+document.addEventListener('contextmenu',ev=>ev.preventDefault());
+document.addEventListener('keydown',ev=>{const c=ev.code;
+ if(c==='F12'||((ev.ctrlKey||ev.metaKey)&&ev.shiftKey&&(c==='KeyI'||c==='KeyJ'||c==='KeyC'))||((ev.ctrlKey||ev.metaKey)&&c==='KeyU')||(ev.metaKey&&ev.altKey&&(c==='KeyI'||c==='KeyJ'||c==='KeyC'||c==='KeyU'))){ev.preventDefault();ev.stopPropagation()}},true);
+
+const URL_="https://script.google.com/macros/s/AKfycbxLJ81_48AEYmHHl5wj1qOMZXCc4C2cR9TyTXUNJ9mYqcPIiMkUvPBq29FDdrOI2v13/exec";
+const $=s=>document.querySelector(s),e=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* index.html-дағы рефлексия сұрақтары (жолдарды дұрыс бөлу үшін) */
+const QS=["Тақырыпты қаншалықты түсіндің?","Бүгін не жаңа үйрендім?","Бүгін 3 жаңа термин:","2 қызықты факт:","1 сұрағым:","Тақырыпты түсіндім:","Қай жері қиын болды?","Тапсырма қалай болды?","Кестені өмірде қайда қолдануға болады?","Плюс (+): маған ұнады","Минус (−): қиын болды","Қызықты (?): білгім келеді"];
+let rows=[],cur=[],key='';
+const cls=n=>n>=8?'g':n>=5?'a':'r';
+const ini=s=>s.trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+function parseR(s){const out=[];String(s||'').split('\n').forEach(line=>{
+ const q=QS.find(q=>line.startsWith(q+': '));
+ if(q)out.push([q,line.slice(q.length+2)]);
+ else if(out.length)out[out.length-1][1]+='\n'+line;
+ else{const m=line.match(/^(.+?): ([\s\S]*)$/);out.push(m?[m[1],m[2]]:['',line])}});return out}
+const hl=c=>e(c).replace(/(&lt;\/?)([a-zA-Z0-9]+)/g,'$1<i class="t">$2</i>').replace(/([a-zA-Z-]+)=(&quot;[^&]*?&quot;)/g,'<i class="at">$1</i>=<i class="v">$2</i>');
 async function load(){$('#msg').textContent='Жүктелуде…';
  try{const r=await(await fetch(URL_+'?key='+encodeURIComponent(key))).json();
   if(!r.ok){$('#msg').textContent='Қате құпиясөз';return}
-  rows=r.rows.reverse();$('#login').hidden=true;$('#dash').hidden=false;
-  const ls=[...new Set(rows.map(r=>r[1]))].sort();$('#fl').innerHTML='<option value="">Барлық сабақ</option>'+ls.map(l=>`<option>${e(l)}</option>`).join('');draw()}
+  rows=r.rows.reverse();$('#login').hidden=true;$('#dash').hidden=false;$('#bar').hidden=false;$('#msg').textContent='';
+  const cv=$('#fl').value,ls=[...new Set(rows.map(r=>r[1]))].sort();
+  $('#fl').innerHTML='<option value="">Барлық сабақ</option>'+ls.map(l=>`<option value="${e(l)}">${e(l)}-сабақ</option>`).join('');$('#fl').value=ls.includes(cv)?cv:'';draw()}
  catch(x){$('#msg').textContent='Байланыс қатесі'}}
-function draw(){const l=$('#fl').value,q=$('#q').value.toLowerCase();
- const f=rows.filter(r=>(!l||r[1]===l)&&r[3].toLowerCase().includes(q));
- const by={};rows.forEach(r=>{(by[r[1]]=by[r[1]]||[]).push(+r[4])});
- $('#sum').innerHTML=Object.keys(by).sort().map(k=>`<div>${e(k)}-сабақ: ${by[k].length} жұмыс, орташа ${(by[k].reduce((a,b)=>a+b,0)/by[k].length).toFixed(1)}</div>`).join('');
- $('#tb').innerHTML=f.map((r,i)=>`<tr class="r" data-i="${i}"><td>${e(r[0])}</td><td>${e(r[1])}</td><td>${e(r[3])}</td><td>${e(r[4])}/10</td></tr><tr hidden><td colspan="4"><b>${e(r[2])}</b><br><b>Рефлексия:</b><pre>${e(r[5])}</pre><b>Код:</b><pre>${e(r[6])}</pre></td></tr>`).join('')||'<tr><td colspan="4">Деректер жоқ</td></tr>';
- document.querySelectorAll('tr.r').forEach(t=>t.onclick=()=>t.nextElementSibling.hidden=!t.nextElementSibling.hidden)}
+function draw(){const l=$('#fl').value,q=$('#q').value.trim().toLowerCase();
+ cur=rows.filter(r=>(!l||r[1]===l)&&r[3].toLowerCase().includes(q));
+ const by={};rows.forEach(r=>(by[r[1]]=by[r[1]]||[]).push(+r[4]||0));
+ const stu=new Set(rows.map(r=>r[3].trim().toLowerCase())).size;
+ $('#sum').innerHTML=`<div class="card st"><div class="k">// барлығы</div><div class="v">${rows.length}</div><div class="s">жұмыс · ${stu} оқушы</div></div>`+
+  Object.keys(by).sort().map(k=>{const a=by[k].reduce((x,y)=>x+y,0)/by[k].length;return `<div class="card st"><div class="k">// сабақ ${e(k)}</div><div class="v ${cls(a)}">${a.toFixed(1)}<span class="mut" style="font-size:13px"> /10</span></div><div class="s">${by[k].length} жұмыс</div><span class="bar"><i class="${cls(a)}" style="width:${a*10}%"></i></span></div>`}).join('');
+ $('#cnt').textContent=cur.length+' жазба';
+ $('#tb').innerHTML=cur.map((r,i)=>{const sc=+r[4]||0,c=cls(sc);
+  return `<tr class="r" data-i="${i}"><td class="tm">${e(r[0])}</td><td><span class="tag">${e(r[1])}</span></td><td><div class="who"><span class="av">${e(ini(r[3]))}</span>${e(r[3])}</div></td><td><div class="sc"><span class="${c}">${sc}/10</span><span class="bar"><i class="${c}" style="width:${sc*10}%"></i></span></div></td><td class="ch">›</td></tr><tr class="d" data-i="${i}" hidden><td colspan="5"></td></tr>`}).join('')||'<tr><td colspan="5" class="empty" style="padding:24px">// деректер жоқ</td></tr>'}
+function detail(r){const qa=parseR(r[5]);
+ return `<div class="det"><div class="dh"><span class="tag">сабақ ${e(r[1])}</span><span>${e(r[2])}</span><span class="mut">· ${e(r[3])} · ${e(r[4])}/10</span></div><div class="two"><section><h4>// рефлексия</h4>${qa.length?qa.map(([q,a])=>`<div class="qa"><div class="q">${e(q)}</div><div class="an">${/^[\p{Emoji}\u{1F7E0}-\u{1F7FF}]|^(Оңай|Қалыпты|Қиын)$/u.test(a)&&a.length<20?`<span class="chip">${e(a)}</span>`:e(a)||'<span class="mut">—</span>'}</div></div>`).join(''):'<div class="empty">// жауап жоқ</div>'}</section><section><h4>// оқушы коды</h4><div class="ed"><div class="tabs"><button class="on" data-t="code">index.html</button><button data-t="pv">preview</button><button class="cp" data-t="cp">көшіру</button></div><pre class="code">${hl(r[6])}</pre></div></section></div></div>`}
+$('#tb').addEventListener('click',ev=>{
+ const tr=ev.target.closest('tr.r');
+ if(tr){const d=tr.nextElementSibling,open=d.hidden;d.hidden=!open;tr.classList.toggle('open',open);
+  if(open&&!d.firstChild.firstChild)d.firstChild.innerHTML=detail(cur[+tr.dataset.i]);return}
+ const b=ev.target.closest('.tabs button');if(!b)return;
+ const d=b.closest('tr.d'),r=cur[+d.dataset.i],ed=b.closest('.ed'),t=b.dataset.t;
+ if(t==='cp'){const done=()=>{b.textContent='✓ көшірілді';setTimeout(()=>b.textContent='көшіру',1200)};
+  if(navigator.clipboard)navigator.clipboard.writeText(r[6]).then(done,()=>{});else{const x=document.createElement('textarea');x.value=r[6];document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();done()}return}
+ ed.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
+ ed.querySelector('pre,iframe').remove();
+ ed.insertAdjacentHTML('beforeend',t==='code'?`<pre class="code">${hl(r[6])}</pre>`:'<iframe sandbox title="Нәтиже"></iframe>');
+ if(t==='pv')ed.querySelector('iframe').srcdoc=r[6]});
 $('#go').onclick=()=>{key=$('#k').value;load()};$('#k').onkeydown=ev=>{if(ev.key==='Enter')$('#go').click()};
+$('#clr').onclick=async()=>{const l=$('#fl').value,what=l?l+'-сабақтың нәтижелерін':'БАРЛЫҚ нәтижелерді';
+ const w=prompt(what+' дашбордтан да, Google кестесінен де өшіресіз. Қайтару мүмкін емес!\nРастау үшін ТАЗАЛАУ деп жазыңыз:');
+ if(w===null)return;if(w.trim().toUpperCase()!=='ТАЗАЛАУ'){alert('Расталмады, ештеңе өшірілмеді');return}
+ const b=$('#clr');b.disabled=true;$('#note').textContent='Тазаланып жатыр…';
+ try{const r=await(await fetch(URL_+'?key='+encodeURIComponent(key)+'&action=clear'+(l?'&lesson='+encodeURIComponent(l):''))).json();
+  if(!r.ok)throw 0;await load();$('#note').textContent='Өшірілді: '+r.deleted;setTimeout(()=>$('#note').textContent='',4000)}
+ catch(x){$('#note').textContent='Қате: Apps Script жаңа нұсқасын (New version) жариялағаныңызды тексеріңіз'}
+ b.disabled=false};
 $('#rf').onclick=load;$('#fl').onchange=draw;$('#q').oninput=draw;
-</script></main></body></html>
+</script></body></html>
