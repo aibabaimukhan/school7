@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Мұғалім панелі</title>
+<style>
+body{margin:0;background:#eef2f7;color:#101828;font:15px/1.5 "Trebuchet MS",Verdana,sans-serif}
+main{max-width:1000px;margin:auto;padding:16px}
+input,select,button{font:inherit;padding:8px 10px;border:2px solid #101828;border-radius:8px;background:#fff}
+button{background:#2457ff;color:#fff;cursor:pointer}
+table{width:100%;border-collapse:collapse;background:#fff;border:2px solid #101828}
+th,td{padding:8px;border-bottom:1px solid #d0d5dd;text-align:left;vertical-align:top}th{background:#ffe9a6}
+tr.r{cursor:pointer}tr.r:hover{background:#eef3ff}
+pre{white-space:pre-wrap;background:#f7f8fa;padding:8px;border-radius:6px;margin:4px 0;font:13px Consolas,monospace}
+.s{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.s div{background:#fff;border:2px solid #101828;border-radius:8px;padding:6px 12px}
+.tw{overflow-x:auto}
+</style></head><body><main>
+<h1>👩‍🏫 Мұғалім панелі</h1>
+<div id="login"><input type="password" id="k" placeholder="Құпиясөз"> <button id="go">Кіру</button> <span id="msg"></span></div>
+<div id="dash" hidden>
+<div class="s" id="sum"></div>
+<p><select id="fl"><option value="">Барлық сабақ</option></select> <input id="q" placeholder="ФИО бойынша іздеу"> <button id="rf">Жаңарту</button></p>
+<div class="tw"><table><thead><tr><th>Уақыты</th><th>Сабақ</th><th>ФИО</th><th>Балл</th></tr></thead><tbody id="tb"></tbody></table></div>
+<p style="color:#667085">Жолды басыңыз — рефлексия жауаптары мен оқушының коды көрінеді.</p>
+</div>
+<script>
+const URL_="https://script.google.com/macros/s/AKfycbwK6LcMVw48qgPYSOtNhKunn0sYSq5d30LEQem4AjiB1kDbM8YUHN1J4zRYKdzWHqDH/exec";
+const $=s=>document.querySelector(s),e=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let rows=[],key='';
+async function load(){$('#msg').textContent='Жүктелуде…';
+ try{const r=await(await fetch(URL_+'?key='+encodeURIComponent(key))).json();
+  if(!r.ok){$('#msg').textContent='Қате құпиясөз';return}
+  rows=r.rows.reverse();$('#login').hidden=true;$('#dash').hidden=false;
+  const ls=[...new Set(rows.map(r=>r[1]))].sort();$('#fl').innerHTML='<option value="">Барлық сабақ</option>'+ls.map(l=>`<option>${e(l)}</option>`).join('');draw()}
+ catch(x){$('#msg').textContent='Байланыс қатесі'}}
+function draw(){const l=$('#fl').value,q=$('#q').value.toLowerCase();
+ const f=rows.filter(r=>(!l||r[1]===l)&&r[3].toLowerCase().includes(q));
+ const by={};rows.forEach(r=>{(by[r[1]]=by[r[1]]||[]).push(+r[4])});
+ $('#sum').innerHTML=Object.keys(by).sort().map(k=>`<div>${e(k)}-сабақ: ${by[k].length} жұмыс, орташа ${(by[k].reduce((a,b)=>a+b,0)/by[k].length).toFixed(1)}</div>`).join('');
+ $('#tb').innerHTML=f.map((r,i)=>`<tr class="r" data-i="${i}"><td>${e(r[0])}</td><td>${e(r[1])}</td><td>${e(r[3])}</td><td>${e(r[4])}/10</td></tr><tr hidden><td colspan="4"><b>${e(r[2])}</b><br><b>Рефлексия:</b><pre>${e(r[5])}</pre><b>Код:</b><pre>${e(r[6])}</pre></td></tr>`).join('')||'<tr><td colspan="4">Деректер жоқ</td></tr>';
+ document.querySelectorAll('tr.r').forEach(t=>t.onclick=()=>t.nextElementSibling.hidden=!t.nextElementSibling.hidden)}
+$('#go').onclick=()=>{key=$('#k').value;load()};$('#k').onkeydown=ev=>{if(ev.key==='Enter')$('#go').click()};
+$('#rf').onclick=load;$('#fl').onchange=draw;$('#q').oninput=draw;
+</script></main></body></html>

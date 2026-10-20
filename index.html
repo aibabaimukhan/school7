@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML: Web-бет жасау</title>
+<style>
+:root{--bg:#eef2f7;--ink:#101828;--b:#2457ff;--ok:#0c9a6b;--bad:#d92d20;--am:#ffb703;--m:#667085}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 Georgia,"Times New Roman",serif}
+h1,h2,h3,button,.m,label,input{font-family:"Trebuchet MS",Verdana,sans-serif}
+main{max-width:820px;margin:auto;padding:18px 14px 80px}
+h1{font-size:30px;margin:.3em 0}h2{font-size:23px}
+.card{background:#fff;border-radius:6px 22px 6px 22px;padding:18px 20px;margin:16px 0;border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink)}
+button{background:var(--b);color:#fff;border:2px solid var(--ink);border-radius:10px;padding:10px 16px;font-size:16px;cursor:pointer;margin:4px 0}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--am)}
+button.g{background:#fff;color:var(--ink)}button:disabled{opacity:.45;cursor:default}
+.menu button{display:block;width:100%;text-align:left;padding:14px}
+.hook{background:#fff4cc;padding:12px 14px;border-left:6px solid var(--am);font-size:18px}
+code{background:#e8edff;padding:1px 6px;border-radius:5px;font:15px Consolas,monospace}
+textarea,input[type=text]{width:100%;border:2px solid var(--ink);border-radius:8px;padding:8px;font:14px Consolas,monospace}
+textarea{height:170px}iframe{width:100%;height:150px;border:2px dashed var(--m);border-radius:8px;background:#fff}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cols button{display:block;width:100%}
+.w{background:#fff;color:var(--ink)}.w.sel{background:var(--am)}.w.ok{background:#c9f5e4}.w.bad{background:#ffd5d1}
+.ck{margin:2px 0}.y{color:var(--ok)}.n{color:var(--bad)}.m{color:var(--m)}
+.opt button{margin-right:6px}.opt .on{background:var(--ok)}
+@media(max-width:560px){.cols{gap:6px}}@media(prefers-reduced-motion:no-preference){.card{animation:in .3s}@keyframes in{from{opacity:0}}}
+</style></head><body><main id="app"></main>
+<script>
+const URL_="https://script.google.com/macros/s/AKfycbwK6LcMVw48qgPYSOtNhKunn0sYSq5d30LEQem4AjiB1kDbM8YUHN1J4zRYKdzWHqDH/exec";
+const TPL='<html>\n<head><title></title></head>\n<body>\n\n</body>\n</html>';
+const L=[
+{n:34,t:"HTML-дағы мәтін және тізімдер",
+ wq:"Алдыңғы тақырыпты (Web-бағдарламалау) еске түсір: терминді анықтамасымен жұптастыр.",
+ w:[["WWW","Дүниежүзілік өрмек"],["Web-сайт","Гиперсілтемемен байланысқан Web-беттер жиынтығы"],["HTML","Гипермәтінді белгілеу тілі"],["front-end","Көрсету компоненті"]],
+ hook:"🏠 HTML — Web-беттің қаңқасы. Үй салғандай: алдымен қабырға мен бөлмелер (құрылым), содан кейін өрнек.",
+ lec:["**HTML** (HyperText Markup Language) — қатаң ережелері бар компьютерлік тіл. Құжат `<html>` тегімен басталып, `</html>` тегімен аяқталады. Файл кеңейтілімі `.htm` немесе `.html`. Файлды Блокнотта жазуға болады.","Тегтер `<` және `>` белгілерінің ішінде жазылады. Көбінің жұбы бар: ашылатын `<p>` және жабылатын `</p>` (жабылатын тег `/` белгісімен басталады).","**Құрылымы:** `<head>` ішіндегі `<title>` — бет тақырыбы; `<body>` ішінде — негізгі мәтін.","**Тақырыптар:** алты деңгей `<h1>` … `<h6>`. Абзац — `<p>`, жаңа жол — `<br>`, көлденең сызық — `<hr>`.","**Мәтін форматы:** қалың `<b>` немесе `<strong>`, курсив `<i>`, төменгі индекс `<sub>`, жоғарғы индекс `<sup>`.","**Тізімдер:** маркерленген `<ul>`, нөмірленген `<ol>`, элемент `<li>`. Нөмір түрі: `<ol type=\"A\">`, бастапқы нөмір: `<ol start=\"3\">`."],
+ demo:'<h2>Компьютер жады</h2>\n<ul>\n<li>Ішкі жад\n<ol><li>Жедел жад</li><li>Тұрақты жад</li></ol></li>\n<li>Сыртқы жад</li>\n</ul>\n<p>H<sub>2</sub>O, <b>қалың</b>, <i>курсив</i></p>',
+ task:"«Менің мектебім» бетін жаз: тақырып, абзац, екі түрлі тізім және форматталған мәтін.",
+ chk:[["<title> жазылған",d=>d.title.trim().length>0],["Тақырып <h1>–<h3>","h1,h2,h3"],["Абзац <p>","p"],["<ul> ішінде кемінде 3 <li>","ul>li",3],["<ol> ішінде кемінде 3 <li>","ol>li",3],["Қалың мәтін <b> немесе <strong>","b,strong"],["Курсив <i>","i,em"]],
+ rf:[{q:"Тақырыпты қаншалықты түсіндің?",k:"s"},{q:"Бүгін не жаңа үйрендім?",k:"t"}]},
+{n:35,t:"Мультимедиа және сілтемелер",
+ wq:"Өткен сабақтағы тегтерді мағынасымен жұптастыр.",
+ w:[["<h1>","Тақырып"],["<p>","Абзац"],["<ul>","Маркерленген тізім"],["<ol>","Нөмірленген тізім"]],
+ hook:"🚪 Сілтеме — интернеттегі есік: бассаң, басқа бөлмеге түсесің. Сурет — бөлменің терезесі.",
+ lec:["**Сурет:** `<img src=\"Astana.jpg\">`. `src` (source — көзі) атрибуты сурет мекенжайын береді. Сурет файлы HTML файлымен бір бумада болуы керек. Форматтар: GIF, JPG, PNG.","**Атрибуттар:** `alt` — сурет көрінбесе жазылатын мәтін; `width`, `height` — өлшемі; `border` — жақтау; `align` — орналасуы.","Мысал: `<img src=\"tu.png\" alt=\"Қазақстан туы\" width=\"140\" height=\"90\">`","**Гиперсілтеме** — басқа бетке өтетін сөз немесе сурет. Тег — `<a>` (anchor), мекенжай — `href` атрибутында: `<a href=\"http://kk.wikipedia.org\">Уикипедия</a>`.","**Сурет-сілтеме:** `<a href=\"comp.html\"><img src=\"comp.jpg\"></a>` — суретке басқанда `comp.html` ашылады.","**Мультимедиа:** аудио `<audio controls src=\"ән.mp3\"></audio>`, бейне `<video controls src=\"фильм.mp4\"></video>`."],
+ demo:'<p><a href="https://kk.wikipedia.org">Уикипедияға өту</a></p>\n<img src="жоқ.png" alt="Сурет табылмаса осы мәтін көрінеді" width="120">\n<br><audio controls></audio>',
+ task:"Сурет, сурет-сілтеме, сыртқы сілтеме және аудио/бейне қосылған бет жаса.",
+ chk:[["<img> src атрибутымен","img[src]"],["alt атрибуты","img[alt]"],["width немесе height","img[width],img[height]"],["Сыртқы сілтеме (href=\"http...\")","a[href^=http]"],["Сурет-сілтеме: <a> ішінде <img>","a img"],["<audio controls> немесе <video controls>","audio[controls],video[controls]"]],
+ rf:[{q:"Бүгін 3 жаңа термин:",k:"t"},{q:"2 қызықты факт:",k:"t"},{q:"1 сұрағым:",k:"t"}]},
+{n:36,t:"Web-бетке мультимедиалық контент қосу және навигацияны ұйымдастыру",
+ wq:"Сурет пен сілтеме тегтерін еске түсір.",
+ w:[["<img>","Сурет орнату"],["alt","Сурет көрінбесе жазылатын мәтін"],["href","Сілтеме мекенжайы"],["<a>","Сілтеме тегі"]],
+ hook:"🗺️ Навигация — сайттың картасы. Мәзір жоқ сайтта адам адасады.",
+ lec:["**Бетке өту:** толық мекенжай қажет емес. Бір бумада тұрса: `<a href=\"2_bet.html\">`. Басқа бумада: `<a href=\"website/2_bet.html\">`.","**Бет ішіндегі сілтеме:** элементке `id` береміз: `<h1 id=\"heading1\">`, сілтеме — `<a href=\"#heading1\">`. `#` браузерге сілтеме осы беттің ішінде екенін айтады.","**Мәзір:** бірнеше `<a>` тегін қатарға қоямыз: Басты бет | Біз туралы | Байланыс.","**Сілтеме түсі** `<body>` тегінде беріледі: `link` — қаралмаған, `vlink` — қаралған, `alink` — басылып тұрған. Мысал: `<body link=\"#669900\" vlink=\"#666666\" alink=\"#000000\">`.","**Фондық сурет:** `<body background=\"fon.jpg\">` — сурет бет бойына қайталанып төселеді."],
+ demo:'<body link="#2457ff" vlink="#888888">\n<p><a href="#a">1-бөлім</a> | <a href="#b">2-бөлім</a> | <a href="2_bet.html">Келесі бет</a></p>\n<div style="height:200px"></div>\n<h3 id="a">1-бөлім</h3><div style="height:200px"></div>\n<h3 id="b">2-бөлім</h3>',
+ task:"Мәзірі бар бет жаса: .html беттерге сілтемелер, бет ішіндегі сілтеме және сілтеме түстері.",
+ chk:[["Кемінде 2 сілтеме .html файлға","a[href$='.html']",2],["Мәзірде кемінде 3 сілтеме","a",3],["Бет ішіндегі сілтеме href=\"#...\"","a[href^='#']"],["Сілтеме көрсететін id бар",d=>[...d.querySelectorAll("a[href^='#']")].some(a=>d.getElementById(a.getAttribute('href').slice(1)))],["<body> тегінде link/vlink/alink","body[link],body[vlink],body[alink]"]],
+ rf:[{q:"Тақырыпты түсіндім:",k:"c",o:["🟢 толық","🟡 ішінара","🔴 түсінбедім"]},{q:"Қай жері қиын болды?",k:"t"}]},
+{n:37,t:"HTML-дағы кесте",
+ wq:"Өткен сабақтағы навигация ұғымдарын жұптастыр.",
+ w:[["#","Бет ішіндегі сілтеме белгісі"],["id","Элемент идентификаторы"],["vlink","Қаралған сілтеме түсі"],["link","Қаралмаған сілтеме түсі"]],
+ hook:"📒 Кесте — сынып журналы сияқты: қатарлар мен бағандар, әр ұяшықта өз мәні.",
+ lec:["Кесте `<table>` … `</table>` тегтерімен жасалады. Ішінде: `<tr>` — қатар, `<td>` — қатардағы ұяшық, `<th>` — баған немесе қатар тақырыбы, `<caption>` — кестенің атауы.","**Құрылым:** `<table>` ішінде `<tr>`, `<tr>` ішінде `<td>`/`<th>`. Қатар саны — `<tr>` саны, баған саны — қатардағы ұяшық саны.","**Атрибуттар:** `border` — шегара қалыңдығы (пиксель), `width` — ені (пиксель немесе %), `cellpadding` — мән мен шегара арақашықтығы, `cellspacing` — ұяшықтар арақашықтығы, `align` — туралау, `bgcolor` — фон түсі.","Мысал: `<table border=\"1\" width=\"60%\">` — шегарасы 1 пиксель, ені бет енінің 60%."],
+ demo:'<table border="1" cellpadding="6">\n<caption>Сабақ кестесі</caption>\n<tr><th>Күн</th><th>Пән</th></tr>\n<tr><td>Дүйсенбі</td><td>Информатика</td></tr>\n<tr><td>Сейсенбі</td><td>Математика</td></tr>\n</table>',
+ task:"Өз сабақ кестеңді <table> арқылы жаса: атауы, тақырып ұяшықтары және деректер.",
+ chk:[["<table> border атрибутымен","table[border]"],["<caption> бар","caption"],["Кемінде 3 қатар <tr>","tr",3],["Кемінде 2 тақырып ұяшығы <th>","th",2],["Кемінде 4 деректер ұяшығы <td>","td",4]],
+ rf:[{q:"Тапсырма қалай болды?",k:"c",o:["Оңай","Қалыпты","Қиын"]},{q:"Кестені өмірде қайда қолдануға болады?",k:"t"}]},
+{n:38,t:"HTML кестелері арқылы ақпарат ұсыну",
+ wq:"Кесте тегтерін еске түсір.",
+ w:[["<tr>","Кесте қатары"],["<td>","Кесте ұяшығы"],["<th>","Тақырып ұяшығы"],["border","Кесте шегарасы"]],
+ hook:"🎨 Кестемен ақпаратты көрнекі ұсынуға болады: түсті палитра, күнтізбе, көбейту кестесі.",
+ lec:["**Ұяшықтарды біріктіру:** `colspan` — бірнеше бағанды, `rowspan` — бірнеше қатарды біріктіреді. Мысал: `<td colspan=\"2\">`.","**Туралау:** `align` — көлденең (left, right, center), `valign` — тік (top, bottom, baseline).","**Түс RGB форматында:** `#RRGGBB` — қызыл, жасыл, көк құраушылары 00-ден FF-ке дейін. Қара — 000000, ақ — FFFFFF, қызыл — FF0000, жасыл — 00FF00, көк — 0000FF, сары — FFFF00.","Түс атауымен де беруге болады: `<td bgcolor=\"red\">` немесе кодпен: `<td bgcolor=\"#FF0000\">`.","**Мысал (оқулықтан):** түстер кестесі — бір бағанда түс атауы, екіншісінде сол түске боялған ұяшық. Бос ұяшыққа `&nbsp;` жазылады."],
+ demo:'<table width="60%" border="1">\n<tr><th colspan="2">Түстер</th></tr>\n<tr><td width="50%">CYAN</td><td bgcolor="cyan">&nbsp;</td></tr>\n<tr><td>YELLOW</td><td bgcolor="#FFFF00">&nbsp;</td></tr>\n</table>',
+ task:"4 қатарлы түстер кестесін жаса: тақырып ұяшығы біріктірілген, ұяшықтар боялған.",
+ chk:[["<table> width атрибутымен","table[width]"],["colspan немесе rowspan","[colspan],[rowspan]"],["Кемінде 2 ұяшықта bgcolor","td[bgcolor],th[bgcolor]",2],["Кемінде 4 қатар","tr",4],["align немесе valign","[align],[valign]"],["Кемінде 2 <th>","th",2]],
+ rf:[{q:"Плюс (+): маған ұнады",k:"t"},{q:"Минус (−): қиын болды",k:"t"},{q:"Қызықты (?): білгім келеді",k:"t"}]}
+];
+const $=s=>document.querySelector(s),e=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=s=>e(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+let done={};try{done=JSON.parse(localStorage.getItem('h_done')||'{}')}catch(x){}
+function menu(){$('#app').innerHTML=`<h1>🌐 HTML: Web-бет жасау</h1><p class="m">Сабақты таңда. Әр сабақ: қайталау ойыны → лекция → тапсырма → рефлексия.</p><div class="menu">${L.map((l,i)=>`<button class="g" onclick="openL(${i})">${done[l.n]?'✅':'▶️'} ${l.n}-сабақ. ${e(l.t)}</button>`).join('')}</div>`}
+function openL(i){const l=L[i];$('#app').innerHTML=`<button class="g" onclick="menu()">← Мәзір</button><h2>${l.n}-сабақ. ${e(l.t)}</h2><div id="s1"></div><div id="s2"></div><div id="s3"></div><div id="s4"></div>`;warm(l,i)}
+function go(id){setTimeout(()=>$(id).scrollIntoView({behavior:'smooth',block:'start'}),50)}
+function warm(l,i){let sel=null,ok=0;const R=l.w.map((_,k)=>k).sort(()=>Math.random()-.5);
+ $('#s1').innerHTML=`<div class="card"><h3>🎮 Қайталау ойыны</h3><p>${e(l.wq)} Сол жақтан таңда, оң жақтан жұбын тап.</p><div class="cols"><div id="wl">${l.w.map((p,k)=>`<button class="w" data-k="${k}">${e(p[0])}</button>`).join('')}</div><div id="wr">${R.map(k=>`<button class="w" data-k="${k}">${e(l.w[k][1])}</button>`).join('')}</div></div><button id="wn" disabled>Жаңа тақырыпқа өту</button></div>`;
+ document.querySelectorAll('#wl .w').forEach(b=>b.onclick=()=>{document.querySelectorAll('#wl .w').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel=b});
+ document.querySelectorAll('#wr .w').forEach(b=>b.onclick=()=>{if(!sel)return;if(sel.dataset.k===b.dataset.k){sel.className=b.className='w ok';sel.disabled=b.disabled=true;sel=null;if(++ok===l.w.length)$('#wn').disabled=false}else{b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),500)}});
+ $('#wn').onclick=()=>{$('#wn').disabled=true;lect(l,i)}}
+function lect(l,i){$('#s2').innerHTML=`<div class="card"><h3>📖 Жаңа тақырып</h3><p class="hook">${e(l.hook)}</p>${l.lec.map(t=>`<p>${fmt(t)}</p>`).join('')}<h3>🧪 Өзің байқап көр</h3><textarea id="pg" spellcheck="false">${e(l.demo)}</textarea><iframe id="pgf" title="Нәтиже"></iframe><br><button id="le">Лекцияны аяқтау</button></div>`;
+ const up=()=>$('#pgf').srcdoc=$('#pg').value;up();$('#pg').oninput=up;
+ $('#le').onclick=()=>{$('#le').disabled=true;task(l,i)};go('#s2')}
+function run(l,code){const d=new DOMParser().parseFromString(code,'text/html');const r=l.chk.map(([t,s,m])=>[t,typeof s==='function'?!!s(d):d.querySelectorAll(s).length>=(m||1)]);return r}
+function show(r){return r.map(([t,ok])=>`<div class="ck ${ok?'y':'n'}">${ok?'✔':'✘'} ${e(t)}</div>`).join('')}
+function task(l,i){$('#s3').innerHTML=`<div class="card"><h3>✍️ Тапсырма</h3><p>${e(l.task)}</p><button class="g" onclick="$('#s2').scrollIntoView({behavior:'smooth'})">↑ Лекцияны қайта оқу</button><textarea id="tc" spellcheck="false">${e(TPL)}</textarea><iframe id="tf" title="Нәтиже"></iframe><br><button id="tk">Тексеру</button><div id="tr"></div><p><label>ФИО: <input type="text" id="fio" placeholder="Тегі Аты"></label></p><button id="td">Тапсырманы аяқтау</button></div>`;
+ const up=()=>$('#tf').srcdoc=$('#tc').value;up();$('#tc').oninput=up;
+ $('#tk').onclick=()=>{$('#tr').innerHTML=show(run(l,$('#tc').value))};
+ $('#td').onclick=()=>{const f=$('#fio').value.trim();if(f.split(/\s+/).length<2){alert('ФИО толық жазыңыз (тегі мен аты)');return}
+  const r=run(l,$('#tc').value),sc=Math.round(r.filter(x=>x[1]).length/r.length*10),code=$('#tc').value;
+  $('#tr').innerHTML=show(r)+`<p><b>Балл: ${sc} / 10</b></p>`;['#td','#tk','#tc','#fio'].forEach(s=>$(s).disabled=true);refl(l,i,f,sc,code)};go('#s3')}
+function refl(l,i,fio,sc,code){const A={};
+ $('#s4').innerHTML=`<div class="card"><h3>💭 Рефлексия</h3>${l.rf.map((f,j)=>`<p><b>${e(f.q)}</b></p>`+(f.k==='t'?`<textarea data-j="${j}" style="height:70px"></textarea>`:`<div class="opt" data-j="${j}">${(f.o||[1,2,3,4,5].map(x=>['😞','😕','😐','🙂','🤩'][x-1])).map(o=>`<button class="g">${e(o)}</button>`).join('')}</div>`)).join('')}<p><button id="sd">Жіберу</button> <span id="st" class="m"></span></p></div>`;
+ document.querySelectorAll('.opt').forEach(o=>o.querySelectorAll('button').forEach(b=>b.onclick=()=>{o.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');A[o.dataset.j]=b.textContent}));
+ $('#sd').onclick=async()=>{document.querySelectorAll('#s4 textarea').forEach(t=>A[t.dataset.j]=t.value.trim());
+  if(l.rf.some((_,j)=>!A[j])){$('#st').textContent='Барлық сұраққа жауап бер';return}
+  const refl={};l.rf.forEach((f,j)=>refl[f.q]=A[j]);$('#sd').disabled=true;$('#st').textContent='Жіберілуде…';
+  try{await fetch(URL_,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({n:l.n,t:l.t,fio,score:sc,code,reflection:refl})});
+   done[l.n]=1;try{localStorage.setItem('h_done',JSON.stringify(done))}catch(x){}
+   $('#s4').innerHTML=`<div class="card"><h3>🎉 Рақмет, ${e(fio)}!</h3><p>Нәтижең мұғалімге жіберілді. Балл: ${sc}/10.</p>${L[i+1]?`<button onclick="openL(${i+1})">Келесі сабақ</button> `:''}<button class="g" onclick="menu()">Мәзір</button></div>`}
+  catch(x){$('#sd').disabled=false;$('#st').textContent='Қате: интернетті тексеріп, қайта жіберіңіз'}}}
+menu();
+</script></body></html>
