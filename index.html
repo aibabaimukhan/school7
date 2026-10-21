@@ -57,6 +57,12 @@ label{font:500 13px var(--mono);color:var(--mut);display:block}
 .tok{font:500 14px var(--mono);background:var(--p2);color:var(--bl);border:1px solid var(--ln);border-radius:8px;padding:8px 12px;cursor:pointer}
 .tok.bad{border-color:var(--bd);color:var(--bd)}.tok:disabled{opacity:.35}
 .blank{color:var(--wn);border-bottom:2px dashed var(--wn)}.blank.fill{color:var(--ac);border-bottom-color:var(--ac)}
+.vs{display:grid;gap:8px;margin:12px 0}
+.vr{display:grid;gap:4px;text-align:left;background:var(--p2);color:var(--ink);border:1px solid var(--ln);border-radius:10px;padding:12px 14px;cursor:pointer;font:14.5px/1.5 var(--sans);transition:border-color .15s}
+.vr b{font:600 13px var(--mono);color:var(--ac)}.vr span{color:var(--ink)}
+.vr:hover:not(:disabled){border-color:var(--ac)}
+.vr.on{border-color:var(--ac);background:#0f1a16}.vr:disabled:not(.on){opacity:.4;cursor:not-allowed}.vr:disabled:not(.on) b::after{content:' 🔒';color:var(--wn)}
+.vsel{font:12.5px var(--mono);color:var(--mut);margin:0 0 8px}.vsel b{color:var(--ac)}
 @media(max-width:560px){.mem{grid-template-columns:repeat(3,1fr)}h1{font-size:23px}}
 @media(prefers-reduced-motion:no-preference){.card{animation:in .25s}@keyframes in{from{opacity:0;transform:translateY(4px)}}}
 </style></head><body><main id="app"></main>
@@ -123,6 +129,25 @@ const getLock=n=>ls.get('h_lock',{})[n];
 const saveLock=(n,v)=>{const m=ls.get('h_lock',{});m[n]=v;ls.set('h_lock',m)};
 const edKeys=t=>t.addEventListener('keydown',ev=>{if(ev.key==='Tab'&&!t.readOnly){ev.preventDefault();const s=t.selectionStart;t.setRangeText('  ',s,t.selectionEnd,'end')}});
 
+/* Тапсырма нұсқалары: 1-нұсқа — бастапқы тапсырма, 2–3 — қосымша */
+const T0='<title> жазылған';const hasT=d=>d.title.trim().length>0;
+const nodes=(d,sel)=>[...d.querySelectorAll(sel)];
+const VS={
+34:[{n:"Менің қалам",task:"«Менің қалам» бетін жаз: бір <h1>, екі <h2> бөлім, әр бөлімде абзац, көлденең сызық <hr> және жол үзілісі <br>.",chk:[[T0,hasT],["Тақырып <h1>","h1"],["Кемінде 2 <h2>","h2",2],["Кемінде 2 абзац <p>","p",2],["Сызық <hr>","hr"],["Жол үзілісі <br>","br"]]},
+{n:"Рецепт",task:"«Рецепт» бетін жаз: тақырып, 3 ингредиенттен тұратын маркерленген тізім, 3 қадамнан тұратын нөмірленген тізім (type атрибутымен) және индекс <sub> немесе <sup>.",chk:[[T0,hasT],["Тақырып <h1>–<h3>","h1,h2,h3"],["<ul> ішінде кемінде 3 <li>","ul>li",3],["<ol type=\"...\"> ішінде кемінде 3 <li>","ol[type]>li",3],["Индекс <sub> немесе <sup>","sub,sup"]]}],
+35:[{n:"Фотоальбом",task:"Фотоальбом беті: кемінде 2 сурет (әрқайсысында alt және width), тақырып және Уикипедияға мәтіндік сілтеме.",chk:[["Кемінде 2 <img> src атрибутымен","img[src]",2],["Әр суретте alt бар",d=>nodes(d,'img').length>0&&nodes(d,'img').every(i=>i.hasAttribute('alt'))],["width немесе height","img[width],img[height]"],["Сыртқы сілтеме (href=\"http...\")","a[href^=http]"],["Тақырып <h1>–<h3>","h1,h2,h3"]]},
+{n:"Мультимедиа",task:"Мультимедиа беті: <video controls>, <audio controls>, .html бетке апаратын сурет-сілтеме және суретке border атрибуты.",chk:[["<video controls>","video[controls]"],["<audio controls>","audio[controls]"],["Сурет-сілтеме: <a> ішінде <img>","a img"],["Сілтеме .html файлға","a[href$='.html']"],["<img> border атрибуты","img[border]"]]}],
+36:[{n:"Ұзын бет мәзірі",task:"3 бөлімі бар ұзын бет жаса: жоғарыда 3 сілтемелі мәзір (#), әр бөлімге id беріп, бөлімдер арасында бос орын қал.",chk:[["Кемінде 3 сілтеме href=\"#...\"","a[href^='#']",3],["Кемінде 3 элементте id бар","[id]",3],["Әр # сілтеменің нысаны бар",d=>nodes(d,"a[href^='#']").length>0&&nodes(d,"a[href^='#']").every(a=>d.getElementById(a.getAttribute('href').slice(1)))],["Кемінде 3 бөлім тақырыбы <h2>/<h3>","h2,h3",3]]},
+{n:"Түсті сілтемелер",task:"Бірінші бет: <body> тегінде bgcolor, link, vlink, alink атрибуттарын бер және 3 сілтеме қой (2-еуі .html, 1-еуі сыртқы).",chk:[["body bgcolor","body[bgcolor]"],["body link","body[link]"],["body vlink","body[vlink]"],["body alink","body[alink]"],["Кемінде 2 сілтеме .html файлға","a[href$='.html']",2],["Сыртқы сілтеме (href=\"http...\")","a[href^=http]"]]}],
+37:[{n:"Бағалар кестесі",task:"Бағалар кестесін жаса: caption, 3 баған тақырыбы <th>, 3 оқушы (3 қатар), border және cellpadding.",chk:[["<caption> бар","caption"],["Кемінде 3 <th>","th",3],["Кемінде 4 қатар <tr>","tr",4],["Кемінде 6 <td>","td",6],["<table> border","table[border]"],["<table> cellpadding","table[cellpadding]"]]},
+{n:"Көбейту кестесі",task:"3×3 көбейту кестесі: бірінші қатар мен бірінші баған <th>-пен, ішінде нәтижелер, cellspacing және width атрибуттары.",chk:[["<table> бар","table"],["Кемінде 4 қатар <tr>","tr",4],["Кемінде 4 <th>","th",4],["Кемінде 9 <td>","td",9],["<table> cellspacing","table[cellspacing]"],["<table> width","table[width]"]]}],
+38:[{n:"Апта кестесі",task:"Апта кестесі: тақырыптың ұяшығы colspan-мен біріктірілген, бір ұяшық rowspan-мен, align және valign қолданылған, ені пайызбен берілген.",chk:[["colspan","[colspan]"],["rowspan","[rowspan]"],["align","[align]"],["valign","[valign]"],["<table> ені пайызбен (width=\"..%\")",d=>/%/.test((d.querySelector('table[width]')||{getAttribute:()=>''}).getAttribute('width')||'')],["Кемінде 4 қатар","tr",4]]},
+{n:"Түстер палитрасы",task:"RGB кодымен боялған палитра кестесі: caption, кемінде 4 боялған ұяшық, оның ішінде 3-еуі #RRGGBB форматында.",chk:[["<caption> бар","caption"],["Кемінде 4 ұяшықта bgcolor","td[bgcolor],th[bgcolor]",4],["Кемінде 3 bgcolor #RRGGBB форматында",d=>nodes(d,'[bgcolor]').filter(x=>/^#[0-9a-f]{6}$/i.test(x.getAttribute('bgcolor'))).length>=3],["Кемінде 4 қатар","tr",4],["<table> border","table[border]"]]}]
+};
+L.forEach(l=>{l.vs=[{n:"Негізгі",task:l.task,chk:l.chk},...VS[l.n]]});
+const getV=n=>ls.get('h_var',{})[n];
+const setV=(n,v)=>{const m=ls.get('h_var',{});m[n]=v;ls.set('h_var',m)};
+
 function menu(){const dn=L.filter(l=>(getLock(l.n)||{}).sent).length;
  $('#app').innerHTML=`<div class="lab">// html · web-бет жасау</div><h1>HTML <span class="ac">&lt;/&gt;</span> Web-бет жасау</h1><p class="m">Әр сабақ: қайталау ойыны → лекция → тапсырма → рефлексия.</p><div class="prog-top"><i style="width:${dn/L.length*100}%"></i></div>${L.map((l,i)=>{const s=(getLock(l.n)||{}).sent;return `<button class="it ${s?'dn':''}" onclick="openL(${i})"><span class="no">${l.n}</span><span>${e(l.t)}</span><span class="st">${s?'✓ жіберілді':'ашу →'}</span></button>`}).join('')}`}
 function openL(i){const l=L[i],lk=getLock(l.n);
@@ -173,8 +198,18 @@ function lect(l,i){$('#s2').innerHTML=`<div class="card"><div class="lab">// 02 
  $('#le').onclick=()=>{$('#le').disabled=true;task(l,i)};go('#s2')}
 function run(l,code){const d=new DOMParser().parseFromString(code,'text/html');return l.chk.map(([t,s,m])=>[t,typeof s==='function'?!!s(d):d.querySelectorAll(s).length>=(m||1)])}
 function show(r){return r.map(([t,ok])=>`<div class="${ok?'y':'n'}">${ok?'✔ PASS':'✘ FAIL'}  ${e(t)}</div>`).join('')}
+function pick(l,i){
+ $('#s3').innerHTML=`<div class="card"><div class="lab">// 03 · тапсырма · нұсқаны таңда</div><p>3 нұсқаның <b>біреуін</b> таңда. Таңдағаннан кейін қалған нұсқалар бекітіледі, ауыстыру мүмкін емес.</p><button class="btn" id="rd">↑ Лекцияны қайта оқу</button><div class="vs">${l.vs.map((x,j)=>`<button class="vr" data-v="${j}"><b>${j+1}-нұсқа · ${e(x.n)}</b><span>${e(x.task)}</span></button>`).join('')}</div></div>`;
+ $('#rd').onclick=()=>$('#s2').scrollIntoView({behavior:'smooth'});
+ document.querySelectorAll('.vr').forEach(b=>b.onclick=()=>{const v=+b.dataset.v;
+  if(!confirm(`${v+1}-нұсқаны таңдайсыз ба? Кейін ауыстыру мүмкін болмайды.`))return;
+  setV(l.n,v);document.querySelectorAll('.vr').forEach(x=>{x.disabled=true;x.classList.toggle('on',x===b)});
+  setTimeout(()=>task(l,i),500)});go('#s3')}
 function task(l,i,lk){
- $('#s3').innerHTML=`<div class="card"><div class="lab">// 03 · тапсырма</div><p>${e(l.task)}</p>${lk?'':'<button class="btn" id="rd">↑ Лекцияны қайта оқу</button>'}<div class="ed"><div class="tabbar"><span class="dots"><i></i><i></i><i></i></span><span>index.html</span><span class="lkb" id="lkb" hidden>🔒 бекітілген</span></div><textarea id="tc" spellcheck="false"></textarea></div><div class="pv"><div class="tabbar"><span>preview</span></div><iframe id="tf" title="Нәтиже"></iframe></div><div class="row"><button class="btn pri" id="tk">Тексеру</button></div><div id="tr"></div><div id="fin" hidden><p><label>ФИО<input type="text" id="fio" placeholder="Тегі Аты"></label></p><button class="btn pri" id="td">Тапсырманы аяқтау →</button></div></div>`;
+ const v=lk?(lk.v||0):getV(l.n);
+ if(v==null){pick(l,i);return}
+ const x=l.vs[v];
+ $('#s3').innerHTML=`<div class="card"><div class="lab">// 03 · тапсырма</div><p class="vsel">таңдалған нұсқа: <b>${v+1}-нұсқа · ${e(x.n)}</b> 🔒 қалғандары бекітілген</p><p>${e(x.task)}</p>${lk?'':'<button class="btn" id="rd">↑ Лекцияны қайта оқу</button>'}<div class="ed"><div class="tabbar"><span class="dots"><i></i><i></i><i></i></span><span>index.html</span><span class="lkb" id="lkb" hidden>🔒 бекітілген</span></div><textarea id="tc" spellcheck="false"></textarea></div><div class="pv"><div class="tabbar"><span>preview</span></div><iframe id="tf" title="Нәтиже"></iframe></div><div class="row"><button class="btn pri" id="tk">Тексеру</button></div><div id="tr"></div><div id="fin" hidden><p><label>ФИО<input type="text" id="fio" placeholder="Тегі Аты"></label></p><button class="btn pri" id="td">Тапсырманы аяқтау →</button></div></div>`;
  const t=$('#tc');t.value=lk?lk.code:TPL;edKeys(t);
  const up=()=>$('#tf').srcdoc=t.value;up();t.oninput=up;
  if($('#rd'))$('#rd').onclick=()=>$('#s2').scrollIntoView({behavior:'smooth'});
@@ -184,9 +219,8 @@ function task(l,i,lk){
   else $('#fin').hidden=false}
  if(lk)apply(lk);
  $('#tk').onclick=()=>{if(!confirm('Тексергеннен кейін кодты өзгерту мүмкін болмайды. Жалғастырасыз ба?'))return;
-  const code=t.value,r=run(l,code),sc=Math.round(r.filter(x=>x[1]).length/r.length*10),k={code,r,sc,sent:0};
+  const code=t.value,r=run(x,code),sc=Math.round(r.filter(y=>y[1]).length/r.length*10),k={code,r,sc,sent:0,v};
   saveLock(l.n,k);apply(k);go('#tr')};
- if($('#fin')&&!lk){}
  $('#td').onclick=()=>{if(!$('#fio'))return;const f=$('#fio').value.trim();if(f.split(/\s+/).length<2){alert('ФИО толық жазыңыз (тегі мен аты)');return}
   const k=getLock(l.n);$('#td').disabled=true;$('#fio').disabled=true;refl(l,i,f,k)};
  if(!lk)go('#s3')}
@@ -196,7 +230,7 @@ function refl(l,i,fio,k){const A={};
  $('#sd').onclick=async()=>{document.querySelectorAll('#s4 textarea').forEach(t=>A[t.dataset.j]=t.value.trim());
   if(l.rf.some((_,j)=>!A[j])){$('#st').textContent='Барлық сұраққа жауап бер';return}
   const refl={};l.rf.forEach((f,j)=>refl[f.q]=A[j]);$('#sd').disabled=true;$('#st').textContent='Жіберілуде…';
-  try{await fetch(URL_,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({n:l.n,t:l.t,fio,score:k.sc,code:k.code,reflection:refl})});
+  try{await fetch(URL_,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({n:l.n,t:l.t+' · '+((k.v||0)+1)+'-нұсқа',fio,score:k.sc,code:k.code,reflection:refl})});
    saveLock(l.n,{...k,sent:1,fio});
    $('#s4').innerHTML=`<div class="card"><div class="lab">// дайын</div><h3>🎉 Рақмет, ${e(fio)}!</h3><p>Нәтижең мұғалімге жіберілді. Балл: ${k.sc}/10.</p><div class="row">${L[i+1]?`<button class="btn pri" onclick="openL(${i+1})">Келесі сабақ →</button>`:''}<button class="btn" onclick="menu()">Мәзір</button></div></div>`}
   catch(x){$('#sd').disabled=false;$('#st').textContent='Қате: интернетті тексеріп, қайта жіберіңіз'}}}
